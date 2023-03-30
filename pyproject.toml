@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "se3-transformer"
+version = "0.1.0"
+description = ""
+authors = ["Lim Heo <huhlim@gmail.com>"]
+readme = "README.md"
+packages = [{include = "se3_transformer"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+e3nn = "^0.3.3"
+dgl = ">=0.9"
+torch = "^1.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
