@@ -14,7 +14,7 @@ I made some minor modifications, including
 pip install git+http://github.com/huhlim/SE3Transformer
 ```
 #### for CUDA (GPU) usage
-1. Install [DGL]((https://www.dgl.ai/pages/start.html) library with CUDA support
+1. Install [DGL](https://www.dgl.ai/pages/start.html) library with CUDA support
 ```bash
 # This is an example with cudatoolkit=11.3.
 # Set a proper cudatoolkit version that is compatible with your CUDA drivier and DGL library.
