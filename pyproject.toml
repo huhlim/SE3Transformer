@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "se3-transformer"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Lim Heo <huhlim@gmail.com>"]
 readme = "README.md"
