@@ -8,6 +8,26 @@ I made some minor modifications, including
 - addition of some basic network implementations using SE(3)-Transformer.
 
 ---
+## Installation
+#### for CPU only
+```bash
+pip install git+http://github.com/huhlim/SE3Transformer
+```
+#### for CUDA (GPU) usage
+1. Install [DGL]((https://www.dgl.ai/pages/start.html) library with CUDA support
+```bash
+# This is an example with cudatoolkit=11.3.
+# Set a proper cudatoolkit version that is compatible with your CUDA drivier and DGL library.
+conda install dgl -c dglteam/label/cu113
+# or
+pip install dgl -f https://data.dgl.ai/wheels/cu113/repo.html
+```
+2. Install this package
+```bash
+pip install git+http://github.com/huhlim/SE3Transformer
+```
+
+---
 
 ## Code Snippets
 - `se3_transformer.LinearModule`: `LinearSE3` and `NormSE3`
