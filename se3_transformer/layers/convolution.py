@@ -133,6 +133,7 @@ class VersatileConvSE3(nn.Module):
         edge_dim: int,
         use_layer_norm: bool,
         fuse_level: ConvSE3FuseLevel,
+        mid_dim: int = 32,
         nonlinearity: nn.Module = nn.ReLU(),
     ):
         super().__init__()
@@ -145,6 +146,7 @@ class VersatileConvSE3(nn.Module):
             channels_in=channels_in,
             channels_out=channels_out,
             edge_dim=edge_dim,
+            mid_dim=mid_dim,
             use_layer_norm=use_layer_norm,
             nonlinearity=nonlinearity,
         )
@@ -191,6 +193,7 @@ class ConvSE3(nn.Module):
         nonlinearity: nn.Module = nn.ReLU(),
         self_interaction: bool = False,
         max_degree: int = 4,
+        mid_dim: int = 32,
         fuse_level: ConvSE3FuseLevel = ConvSE3FuseLevel.FULL,
         allow_fused_output: bool = False,
         low_memory: bool = False,
@@ -227,6 +230,7 @@ class ConvSE3(nn.Module):
         degrees_up_to_max = list(range(max_degree + 1))
         common_args = dict(
             edge_dim=fiber_edge[0] + 1,
+            mid_dim=mid_dim,
             use_layer_norm=use_layer_norm,
             nonlinearity=nonlinearity,
         )
@@ -359,9 +363,7 @@ class ConvSE3(nn.Module):
             if not self.allow_fused_output or self.self_interaction or self.pool:
                 out = unfuse_features(out, self.fiber_out.degrees)
 
-        elif self.used_fuse_level == ConvSE3FuseLevel.PARTIAL and hasattr(
-            self, "conv_out"
-        ):
+        elif self.used_fuse_level == ConvSE3FuseLevel.PARTIAL and hasattr(self, "conv_out"):
             in_features_fused = torch.cat(in_features, dim=-1)
             for degree_out in self.fiber_out.degrees:
                 basis_used = basis[f"out{degree_out}_fused"]
@@ -375,9 +377,7 @@ class ConvSE3(nn.Module):
                     basis_used,
                 )
 
-        elif self.used_fuse_level == ConvSE3FuseLevel.PARTIAL and hasattr(
-            self, "conv_in"
-        ):
+        elif self.used_fuse_level == ConvSE3FuseLevel.PARTIAL and hasattr(self, "conv_in"):
             out = 0
             for degree_in, feature in zip(self.fiber_in.degrees, in_features):
                 out = out + self.conv_checkpoint(
@@ -414,9 +414,7 @@ class ConvSE3(nn.Module):
 
             if self.pool:
                 if isinstance(out, dict):
-                    out[str(degree_out)] = dgl.ops.copy_e_sum(
-                        graph, out[str(degree_out)]
-                    )
+                    out[str(degree_out)] = dgl.ops.copy_e_sum(graph, out[str(degree_out)])
                 else:
                     out = dgl.ops.copy_e_sum(graph, out)
         return out

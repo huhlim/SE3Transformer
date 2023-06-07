@@ -78,6 +78,7 @@ class SE3Transformer(nn.Module):
         norm: bool = True,
         use_layer_norm: bool = True,
         nonlinearity: nn.Module = nn.ReLU(),
+        mid_dim: int = 32,
         tensor_cores: bool = False,
         low_memory: bool = False,
         **kwargs
@@ -104,9 +105,7 @@ class SE3Transformer(nn.Module):
         self.channels_div = channels_div
         self.return_type = return_type
         self.pooling = pooling
-        self.max_degree = max(
-            *fiber_in.degrees, *fiber_hidden.degrees, *fiber_out.degrees
-        )
+        self.max_degree = max(*fiber_in.degrees, *fiber_hidden.degrees, *fiber_out.degrees)
         self.tensor_cores = tensor_cores
         self.low_memory = low_memory
 
@@ -114,9 +113,7 @@ class SE3Transformer(nn.Module):
             self.fuse_level = ConvSE3FuseLevel.NONE
         else:
             # Fully fused convolutions when using Tensor Cores (and not low memory mode)
-            self.fuse_level = (
-                ConvSE3FuseLevel.FULL if tensor_cores else ConvSE3FuseLevel.PARTIAL
-            )
+            self.fuse_level = ConvSE3FuseLevel.FULL if tensor_cores else ConvSE3FuseLevel.PARTIAL
 
         graph_modules = []
         for i in range(num_layers):
@@ -130,6 +127,7 @@ class SE3Transformer(nn.Module):
                     use_layer_norm=use_layer_norm,
                     nonlinearity=nonlinearity,
                     max_degree=self.max_degree,
+                    mid_dim=mid_dim,
                     fuse_level=self.fuse_level,
                     low_memory=low_memory,
                 )
@@ -146,6 +144,7 @@ class SE3Transformer(nn.Module):
                 self_interaction=True,
                 use_layer_norm=use_layer_norm,
                 nonlinearity=nonlinearity,
+                mid_dim=mid_dim,
                 max_degree=self.max_degree,
             )
         )
@@ -181,9 +180,7 @@ class SE3Transformer(nn.Module):
 
         edge_feats = get_populated_edge_features(graph.edata["rel_pos"], edge_feats)
 
-        node_feats = self.graph_modules(
-            node_feats, edge_feats, graph=graph, basis=basis
-        )
+        node_feats = self.graph_modules(node_feats, edge_feats, graph=graph, basis=basis)
 
         if self.pooling is not None:
             return self.pooling_module(node_feats, graph=graph)
